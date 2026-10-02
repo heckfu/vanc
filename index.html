@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vancomycin dosing calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#fff;--gold:#ffd23f;--cyan:#7fe9ff;--panel1:#2b3fd1;--panel2:#10198a;--edge:#9fb4ff;--ok:#5dff7a;--warn:#ff9a3c;--bad:#ff5a5a;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+*{box-sizing:border-box}
+body{margin:0;min-height:100%;color:var(--ink);background:linear-gradient(180deg,#1a2fc0 0%,#0a1170 55%,#050a4a 100%) fixed;
+font:1.3rem/1.2 "VT323","Courier New",monospace;text-shadow:2px 2px 0 #000;letter-spacing:.02em}
+main{max-width:640px;margin:0 auto;padding:0 12px 40px}
+.hdr{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;padding:14px 0 6px;border-bottom:4px solid var(--gold)}
+h1{font-size:2.1rem;margin:0;color:var(--gold);line-height:1}
+.hdr .clock{color:var(--cyan);font-size:1.2rem;white-space:nowrap}
+.ticker{overflow:hidden;white-space:nowrap;background:#000;border:2px solid var(--edge);margin:10px 0 14px;color:var(--cyan);font-size:1.15rem;padding:2px 0}
+.ticker span{display:inline-block;padding-left:100%;animation:tk 28s linear infinite}
+@keyframes tk{to{transform:translateX(-100%)}}
+@media (prefers-reduced-motion:reduce){.ticker span{animation:none;padding-left:8px}}
+h2{font-size:1.6rem;margin:0 0 10px;color:var(--gold);font-weight:400}
+p.sub{color:var(--cyan);margin:0 0 6px;font-size:1.15rem}
+.card{background:linear-gradient(180deg,var(--panel1),var(--panel2));border:3px solid var(--edge);border-right-color:#3a4a9a;border-bottom-color:#3a4a9a;padding:14px;margin-bottom:14px;box-shadow:4px 4px 0 #000}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+label{display:block;font-size:1.1rem;color:var(--cyan);margin-bottom:2px}
+input,select{width:100%;padding:6px 8px;font:inherit;font-size:1.35rem;color:#fff;text-shadow:1px 1px 0 #000;background:#06104f;border:2px solid var(--edge);border-radius:0}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
+.tabs{display:flex;gap:8px;margin:0 0 14px}
+.tabs button{flex:1;padding:8px;font:inherit;font-size:1.4rem;color:#fff;text-shadow:2px 2px 0 #000;background:#06104f;border:3px solid var(--edge);border-radius:0;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--gold);color:#101060;text-shadow:none;border-color:#fff}
+.big{font-size:3rem;line-height:1;color:var(--gold)}
+.big small{font-size:1.4rem;color:var(--cyan)}
+.big.ok{color:var(--ok)}.big.warn{color:var(--warn)}
+.row{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-top:2px dotted #5f74e0}
+.row span:first-child{color:var(--cyan)}.row b{text-align:right;font-weight:400;color:#fff}
+.note{font-size:1.1rem;color:#cfd8ff;margin-top:6px}
+.note.warn,.warn{color:var(--warn)}.ok{color:var(--ok)}
+.foot{border-top:4px solid var(--gold);padding-top:8px;margin-top:6px}
+.right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+#mus{font:inherit;font-size:1.15rem;color:#fff;text-shadow:1px 1px 0 #000;background:#06104f;border:2px solid var(--edge);padding:2px 8px;cursor:pointer;border-radius:0}
+#mus[aria-pressed="true"]{background:var(--gold);color:#101060;text-shadow:none;border-color:#fff}
+.wxhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
+.wxhead h2{margin:0}.wxhead select{width:auto;font-size:1.2rem;padding:2px 6px}
+.wxmain{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.wxmain .t{font-size:3.4rem;color:var(--gold);line-height:1}.wxmain .c{font-size:1.6rem}
+#map{position:relative;height:220px;overflow:hidden;background:#030a3a;border:2px solid var(--edge);margin-top:10px}
+#mg{position:absolute;width:1280px;height:768px}
+#mg img{position:absolute;width:256px;height:256px;max-width:none}
+#mg .rf{position:absolute;inset:0;opacity:.75;display:none}
+#mg .rf.on{display:block}
+.pin{position:absolute;left:50%;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border:3px solid var(--gold);border-radius:50%;box-shadow:0 0 0 2px #000}
+#mlabel{position:absolute;left:6px;bottom:4px;font-size:1.1rem;background:#000;padding:0 6px;color:var(--cyan)}
+[hidden]{display:none!important}
+</style></head><body><main>
+<div class="hdr"><h1>Vancomycin Dosing</h1><div class="right"><button id="mus" aria-pressed="false">&#9834; Music: Off</button><div class="clock" id="clk"></div></div></div>
+<div class="ticker" aria-hidden="true"><span>Target AUC24 400-600 mg&middot;h/L ... Cockcroft-Gault CrCl ... Matzke clearance ... Sawchuk-Zaske level adjustment ... Educational tool: verify with a pharmacist and local protocol ...</span></div>
+<div class="card" id="wx"><div class="wxhead"><h2>Current Conditions</h2>
+<select id="city" aria-label="City"><option>Birmingham</option><option>Atlanta</option><option>New York</option><option>Chicago</option><option>Denver</option><option>Los Angeles</option><option>Miami</option><option>Seattle</option></select></div>
+<div id="wxout"><p class="note">Loading conditions...</p></div>
+<div id="map" aria-label="Radar map"><div id="mg"></div><div class="pin"></div><div id="mlabel">Radar</div></div>
+<p class="note">Weather: Open-Meteo. Radar: RainViewer. Map: &copy; OpenStreetMap contributors, &copy; CARTO.</p></div>
+<div class="tabs" role="tablist">
+<button role="tab" id="t1" aria-selected="true">Initial dose</button>
+<button role="tab" id="t2" aria-selected="false">Adjust from levels</button></div>
+
+<section id="p1">
+<div class="card"><h2>Patient</h2><div class="g">
+<div><label for="sex">Sex</label><select id="sex"><option value="m">Male</option><option value="f">Female</option></select></div>
+<div><label for="age">Age (years)</label><input id="age" type="number" inputmode="decimal" value="55"></div>
+<div><label for="ht">Height (in)</label><input id="ht" type="number" inputmode="decimal" value="70"></div>
+<div><label for="wt">Weight (kg)</label><input id="wt" type="number" inputmode="decimal" value="80"></div>
+<div><label for="scr">Serum creatinine (mg/dL)</label><input id="scr" type="number" inputmode="decimal" step="0.1" value="1.0"></div>
+<div><label for="wsel">Weight for CrCl</label><select id="wsel"><option value="auto">Auto (IBW / Adjusted)</option><option value="tbw">Actual</option><option value="ibw">Ideal</option><option value="adj">Adjusted</option></select></div>
+</div></div>
+<div class="card"><h2>Regimen</h2><div class="g">
+<div><label for="auc">Target AUC24 (mg·h/L)</label><input id="auc" type="number" value="500"></div>
+<div><label for="tau">Interval (h)</label><select id="tau"><option value="0">Auto</option><option>8</option><option>12</option><option>18</option><option>24</option><option>36</option><option>48</option></select></div>
+<div><label for="ld">Loading dose (mg/kg)</label><input id="ld" type="number" value="25"></div>
+<div><label for="rnd">Round dose to (mg)</label><select id="rnd"><option>250</option><option>500</option><option>50</option></select></div>
+</div></div>
+<div class="card" id="out1"></div>
+</section>
+
+<section id="p2" hidden>
+<div class="card"><h2>Current regimen</h2><div class="g">
+<div><label for="d2">Dose (mg)</label><input id="d2" type="number" value="1250"></div>
+<div><label for="i2">Interval (h)</label><input id="i2" type="number" value="12"></div>
+<div><label for="inf2">Infusion time (h)</label><input id="inf2" type="number" step="0.25" value="1.5"></div>
+<div><label for="auc2">Target AUC24</label><input id="auc2" type="number" value="500"></div>
+</div></div>
+<div class="card"><h2>Steady-state levels</h2>
+<p class="note" style="margin:0 0 10px">Time is hours after the start of the infusion.</p><div class="g">
+<div><label for="c1">Level 1 (mg/L)</label><input id="c1" type="number" step="0.1" value="30"></div>
+<div><label for="t1h">Level 1 time (h)</label><input id="t1h" type="number" step="0.25" value="3"></div>
+<div><label for="c2">Level 2 (mg/L)</label><input id="c2" type="number" step="0.1" value="12"></div>
+<div><label for="t2h">Level 2 time (h)</label><input id="t2h" type="number" step="0.25" value="11.5"></div>
+</div></div>
+<div class="card" id="out2"></div>
+</section>
+
+<p class="note foot">Methods: Cockcroft-Gault CrCl; vancomycin CL (mL/min) = 0.689 × CrCl + 3.66 (Matzke 1984); Vd = 0.7 L/kg actual weight; ke = CL / Vd; AUC24 = daily dose / CL; level-based adjustment by Sawchuk-Zaske. Reference targets: AUC24 400–600 mg·h/L (ASHP/IDSA 2020). Not affiliated with ClinCalc.</p>
+
+<script>
+const $=id=>document.getElementById(id),n=id=>parseFloat($(id).value);
+const f=(x,d=1)=>isFinite(x)?x.toFixed(d):"–";
+const row=(a,b)=>`<div class="row"><span>${a}</span><b>${b}</b></div>`;
+const rd=(x,s)=>Math.round(x/s)*s;
+const tinfFor=d=>Math.max(1,d/1000); // max 1 g/h
+const aucCls=a=>a>=400&&a<=600?"ok":"warn";
+
+function calc1(){
+ const sex=$("sex").value,age=n("age"),ht=n("ht"),tbw=n("wt"),scr=n("scr"),target=n("auc"),step=+$("rnd").value;
+ if(![age,ht,tbw,scr,target].every(v=>v>0)){$("out1").innerHTML="<p class='note'>Enter all patient values.</p>";return}
+ const ibw=(sex=="m"?50:45.5)+2.3*Math.max(0,ht-60), adj=ibw+0.4*(tbw-ibw);
+ let w={tbw,ibw,adj}[$("wsel").value];
+ if($("wsel").value=="auto") w=tbw<ibw?tbw:(tbw/ibw>1.2?adj:ibw);
+ let crcl=(140-age)*w/(72*scr)*(sex=="f"?0.85:1);
+ const cl=(0.689*crcl+3.66)*0.06; // L/h
+ const vd=0.7*tbw, ke=cl/vd, t12=0.693/ke;
+ let tau=+$("tau").value; if(!tau) tau=[8,12,18,24,36,48].find(t=>t>=t12)||48;
+ const daily=target*cl, dose=Math.max(step,rd(daily*tau/24,step)), tinf=tinfFor(dose);
+ const k0=dose/tinf, cmax=k0/cl*(1-Math.exp(-ke*tinf))/(1-Math.exp(-ke*tau)), cmin=cmax*Math.exp(-ke*(tau-tinf));
+ const pAUC=dose*24/tau/cl, load=Math.min(3000,rd(n("ld")*tbw,step));
+ $("out1").innerHTML=`<div class="big ${aucCls(pAUC)}">${dose} mg <small>every ${tau} h</small></div>
+ <p class="note" style="margin:2px 0 10px">Infuse over ${f(tinf,1)} h. Predicted AUC24 ${f(pAUC,0)} mg·h/L (target ${target}).</p>
+ ${row("Loading dose",load+" mg")}${row("Predicted steady-state peak / trough",f(cmax)+" / "+f(cmin)+" mg/L")}
+ ${row("Daily dose",f(dose*24/tau,0)+" mg/day")}
+ ${row("CrCl (Cockcroft-Gault)",f(crcl,0)+" mL/min")}${row("Vancomycin CL",f(cl*1000/60,1)+" mL/min ("+f(cl,2)+" L/h)")}
+ ${row("Vd",f(vd,0)+" L")}${row("ke / half-life",f(ke,3)+" /h · "+f(t12,1)+" h")}
+ ${row("IBW / Adjusted BW",f(ibw,1)+" / "+f(adj,1)+" kg")}
+ ${crcl>120?"<p class='note warn'>CrCl is high; augmented clearance is possible. Level monitoring is advised.</p>":""}
+ ${scr<0.7?"<p class='note warn'>Low SCr may overestimate CrCl. Some protocols round SCr up.</p>":""}`;
+}
+
+function calc2(){
+ const D=n("d2"),tau=n("i2"),ti=n("inf2"),T=n("auc2"),c1=n("c1"),t1=n("t1h"),c2=n("c2"),t2=n("t2h");
+ if(![D,tau,ti,T,c1,t1,c2,t2].every(v=>v>0)||t2<=t1||c1<=c2){$("out2").innerHTML="<p class='note'>Level 2 must be later and lower than level 1.</p>";return}
+ const ke=Math.log(c1/c2)/(t2-t1), k0=D/ti;
+ const peak=c1*Math.exp(ke*(t1-ti)), trough=c2*Math.exp(-ke*(tau-t2));
+ const vd=k0*(1-Math.exp(-ke*ti))/(ke*(peak-trough*Math.exp(-ke*ti)));
+ const cl=ke*vd, auc=D*24/tau/cl, step=250;
+ const newD=rd(T*cl*tau/24,step), pAUC=newD*24/tau/cl;
+ $("out2").innerHTML=`<div class="big ${aucCls(auc)}">${f(auc,0)} <small>mg·h/L current AUC24</small></div>
+ <p class="note" style="margin:2px 0 10px">Suggested: ${newD} mg every ${tau} h (predicted AUC24 ${f(pAUC,0)}).</p>
+ ${row("Peak (end of infusion) / trough",f(peak)+" / "+f(trough)+" mg/L")}
+ ${row("Measured ke / half-life",f(ke,3)+" /h · "+f(0.693/ke,1)+" h")}
+ ${row("Individual Vd",f(vd,1)+" L")}${row("Individual CL",f(cl,2)+" L/h")}
+ <p class="note">Assumes steady state and exact timing. Round to practical doses and re-check levels after changes.</p>`;
+}
+
+document.querySelectorAll("#p1 input,#p1 select").forEach(e=>e.addEventListener("input",calc1));
+document.querySelectorAll("#p2 input").forEach(e=>e.addEventListener("input",calc2));
+[["t1","p1","t2","p2"],["t2","p2","t1","p1"]].forEach(([a,pa,b,pb])=>$(a).onclick=()=>{
+ $(a).setAttribute("aria-selected","true");$(b).setAttribute("aria-selected","false");$(pa).hidden=false;$(pb).hidden=true});
+calc1();calc2();
+const tick=()=>{$("clk").textContent=new Date().toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})};tick();setInterval(tick,30000);
+
+const Music=(()=>{
+ let ctx,master,bus,timer,next,step=0,noise,on=false;
+ const E=60/92/2, mf=m=>440*Math.pow(2,(m-69)/12);
+ const chords=[{b:48,p:[64,67,71,74]},{b:45,p:[60,64,67,71]},{b:50,p:[65,69,72,76]},{b:43,p:[65,71,74,76]}];
+ const sc=[72,74,76,79,81,84];
+ const mel=[4,-1,5,-1,4,2,-1,-1, 3,-1,2,-1,0,-1,2,-1, 1,-1,3,5,4,-1,-1,-1, 2,-1,3,-1,4,-1,-1,-1];
+ function tone(type,f,t,dur,vol,dest,a=.01,vib=false){
+  const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.value=f;
+  g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vol,t+a);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g);g.connect(dest);o.start(t);o.stop(t+dur+.05);
+  if(vib){const l=ctx.createOscillator(),lg=ctx.createGain();l.frequency.value=5.5;lg.gain.value=14;l.connect(lg);lg.connect(o.detune);l.start(t);l.stop(t+dur+.05)}
+ }
+ function hit(t,type,freq,vol,len){
+  const s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();
+  s.buffer=noise;f.type=type;f.frequency.value=freq;
+  g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+len);
+  s.connect(f);f.connect(g);g.connect(bus);s.start(t);s.stop(t+len+.02);
+ }
+ function kick(t){const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.setValueAtTime(120,t);o.frequency.exponentialRampToValueAtTime(45,t+.12);
+  g.gain.setValueAtTime(.18,t);g.gain.exponentialRampToValueAtTime(.0001,t+.2);o.connect(g);g.connect(bus);o.start(t);o.stop(t+.25)}
+ function sched(n,t0){
+  const t=t0+(n%2?E*.16:0), bar=Math.floor(n/8)%4, s=n%8, c=chords[bar];
+  hit(t,"highpass",7000,s%2?.02:.035,.05);
+  if(s==2||s==6)hit(t,"bandpass",1800,.05,.12);
+  if(s==0||s==5)kick(t);
+  if(s==0){tone("sine",mf(c.b),t,E*3,.22,bus,.01);c.p.forEach(m=>tone("triangle",mf(m-12),t,E*8,.012,bus,.4))}
+  if(s==5)tone("sine",mf(c.b+7),t,E*2,.16,bus,.01);
+  if(s==0||s==3)c.p.forEach(m=>{tone("triangle",mf(m),t,1.4,.03,bus);tone("sine",mf(m+12),t,.5,.008,bus)});
+  const i=mel[n%32];
+  if(i>=0)tone("sawtooth",mf(sc[i]),t,E*2.6,.05,lead,.05,true);
+ }
+ let lead;
+ function start(){
+  ctx=new (window.AudioContext||window.webkitAudioContext)();
+  master=ctx.createGain();master.gain.setValueAtTime(.0001,ctx.currentTime);master.gain.linearRampToValueAtTime(.7,ctx.currentTime+.5);master.connect(ctx.destination);
+  bus=ctx.createGain();bus.connect(master);
+  const d=ctx.createDelay(1),fb=ctx.createGain(),wet=ctx.createGain();d.delayTime.value=.33;fb.gain.value=.3;wet.gain.value=.22;
+  bus.connect(d);d.connect(fb);fb.connect(d);d.connect(wet);wet.connect(master);
+  lead=ctx.createBiquadFilter();lead.type="lowpass";lead.frequency.value=2200;lead.connect(bus);
+  noise=ctx.createBuffer(1,ctx.sampleRate,ctx.sampleRate);const nd=noise.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
+  step=0;next=ctx.currentTime+.1;
+  timer=setInterval(()=>{while(next<ctx.currentTime+.5){sched(step++,next);next+=E}},100);
+  on=true;
+ }
+ function stop(){
+  clearInterval(timer);const c=ctx,m=master;
+  m.gain.cancelScheduledValues(c.currentTime);m.gain.setValueAtTime(m.gain.value,c.currentTime);m.gain.linearRampToValueAtTime(.0001,c.currentTime+.3);
+  setTimeout(()=>c.close(),400);on=false;
+ }
+ return{toggle(){try{on?stop():start()}catch(e){console.error(e);on=false}return on},get on(){return on}};
+})();
+$("mus").onclick=()=>{const b=$("mus"),on=Music.toggle();b.setAttribute("aria-pressed",on);b.innerHTML=on?"&#9834; Music: On":"&#9834; Music: Off"};
+
+const CITIES={"Atlanta":[33.749,-84.388],"Birmingham":[33.52,-86.802],"New York":[40.713,-74.006],"Chicago":[41.878,-87.63],"Denver":[39.739,-104.99],"Los Angeles":[34.052,-118.244],"Miami":[25.762,-80.192],"Seattle":[47.606,-122.332]};
+const WX={0:"Clear",1:"Mostly clear",2:"Partly cloudy",3:"Cloudy",45:"Fog",48:"Fog",51:"Light drizzle",53:"Drizzle",55:"Heavy drizzle",61:"Light rain",63:"Rain",65:"Heavy rain",71:"Light snow",73:"Snow",75:"Heavy snow",80:"Showers",81:"Showers",82:"Heavy showers",95:"Thunderstorm",96:"Thunderstorm, hail",99:"Thunderstorm, hail"};
+const wxErr="<p class='note warn'>No data connection. Live weather and radar load when this page is opened as a saved file or on your own host while online.</p>";
+let radarTimer,pos={};
+function place(){const m=$("map");$("mg").style.left=(m.clientWidth/2-pos.px)+"px";$("mg").style.top=(m.clientHeight/2-pos.py)+"px"}
+async function getJSON(u){const ac=new AbortController(),to=setTimeout(()=>ac.abort(),8000);try{const r=await fetch(u,{signal:ac.signal});if(!r.ok)throw 0;return await r.json()}finally{clearTimeout(to)}}
+async function loadWx(){
+ const [lat,lon]=CITIES[$("city").value];
+ try{
+  const j=await getJSON(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,pressure_msl,wind_speed_10m,wind_direction_10m,weather_code&temperature_unit=fahrenheit&wind_speed_unit=mph`);
+  const c=j.current,dirs=["N","NE","E","SE","S","SW","W","NW"];
+  $("wxout").innerHTML=`<div class="wxmain"><span class="t">${Math.round(c.temperature_2m)}&deg;F</span><span class="c">${WX[c.weather_code]||"Conditions"}</span></div>
+  ${row("Feels like",Math.round(c.apparent_temperature)+"&deg;F")}${row("Humidity",c.relative_humidity_2m+"%")}
+  ${row("Wind",dirs[Math.round(c.wind_direction_10m/45)%8]+" "+Math.round(c.wind_speed_10m)+" mph")}${row("Pressure",(c.pressure_msl*0.02953).toFixed(2)+" in")}`;
+ }catch(e){$("wxout").innerHTML=wxErr}
+}
+async function loadRadar(){
+ clearInterval(radarTimer);const mg=$("mg");mg.innerHTML="";
+ const [lat,lon]=CITIES[$("city").value],Z=6,N=2**Z,r=lat*Math.PI/180;
+ const xf=(lon+180)/360*N,yf=(1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*N,tx=Math.floor(xf),ty=Math.floor(yf);
+ pos={px:(xf-(tx-2))*256,py:(yf-(ty-1))*256};place();
+ $("mlabel").textContent=$("city").value;
+ const layer=(url,cls)=>{const d=document.createElement("div");d.className=cls;for(let i=0;i<5;i++)for(let k=0;k<3;k++){const im=new Image();im.alt="";im.style.left=i*256+"px";im.style.top=k*256+"px";im.src=url(tx-2+i,ty-1+k);d.appendChild(im)}mg.appendChild(d);return d};
+ layer((x,y)=>`https://a.basemaps.cartocdn.com/dark_all/${Z}/${x}/${y}.png`,"rf on").style.opacity=1;
+ try{
+  const j=await getJSON("https://api.rainviewer.com/public/weather-maps.json");
+  const fr=j.radar.past.slice(-4),L=fr.map(q=>layer((x,y)=>`${j.host}${q.path}/256/${Z}/${x}/${y}/2/1_1.png`,"rf"));
+  let n=L.length-1;const show=()=>{L.forEach((d,i)=>d.classList.toggle("on",i==n));$("mlabel").textContent=$("city").value+" radar "+new Date(fr[n].time*1000).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})};
+  show();
+  if(!matchMedia("(prefers-reduced-motion:reduce)").matches)radarTimer=setInterval(()=>{n=(n+1)%L.length;show()},700);
+ }catch(e){}
+}
+function loadAll(){loadWx();loadRadar()}
+$("city").onchange=loadAll;addEventListener("resize",()=>pos.px&&place());
+loadAll();setInterval(loadWx,600000);
+</script></main></body></html>
