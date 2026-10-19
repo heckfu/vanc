@@ -1,104 +1,143 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Vancomycin dosing calculator</title>
-<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<title>Vancomycin dosing</title>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
-:root{--ink:#fff;--gold:#ffd23f;--cyan:#7fe9ff;--panel1:#2b3fd1;--panel2:#10198a;--edge:#9fb4ff;--ok:#5dff7a;--warn:#ff9a3c;--bad:#ff5a5a;
+:root{--bg0:#070e18;--bg1:#14263a;--bg2:#2b4a66;--panel:rgba(10,24,40,.78);--line:rgba(150,200,240,.35);--hi:#bfe6ff;--ink:#e6f2fb;--mute:#8fb0c9;--acc:#6cc4ff;--ok:#7ef2b0;--warn:#ffb347;
 box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-html{scroll-padding-top:env(safe-area-inset-top,0px);height:100%}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
-body{margin:0;min-height:100%;color:var(--ink);background:linear-gradient(180deg,#1a2fc0 0%,#0a1170 55%,#050a4a 100%) fixed;
-font:1.3rem/1.2 "VT323","Courier New",monospace;text-shadow:2px 2px 0 #000;letter-spacing:.02em}
-main{max-width:640px;margin:0 auto;padding:0 12px 40px}
-.hdr{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;padding:14px 0 6px;border-bottom:4px solid var(--gold)}
-h1{font-size:2.1rem;margin:0;color:var(--gold);line-height:1}
-.hdr .clock{color:var(--cyan);font-size:1.2rem;white-space:nowrap}
-.ticker{overflow:hidden;white-space:nowrap;background:#000;border:2px solid var(--edge);margin:10px 0 14px;color:var(--cyan);font-size:1.15rem;padding:2px 0}
-.ticker span{display:inline-block;padding-left:100%;animation:tk 28s linear infinite}
-@keyframes tk{to{transform:translateX(-100%)}}
-@media (prefers-reduced-motion:reduce){.ticker span{animation:none;padding-left:8px}}
-h2{font-size:1.6rem;margin:0 0 10px;color:var(--gold);font-weight:400}
-p.sub{color:var(--cyan);margin:0 0 6px;font-size:1.15rem}
-.card{background:linear-gradient(180deg,var(--panel1),var(--panel2));border:3px solid var(--edge);border-right-color:#3a4a9a;border-bottom-color:#3a4a9a;padding:14px;margin-bottom:14px;box-shadow:4px 4px 0 #000}
-.g{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-label{display:block;font-size:1.1rem;color:var(--cyan);margin-bottom:2px}
-input,select{width:100%;padding:6px 8px;font:inherit;font-size:1.35rem;color:#fff;text-shadow:1px 1px 0 #000;background:#06104f;border:2px solid var(--edge);border-radius:0}
-input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--gold);outline-offset:1px}
-.tabs{display:flex;gap:8px;margin:0 0 14px}
-.tabs button{flex:1;padding:8px;font:inherit;font-size:1.4rem;color:#fff;text-shadow:2px 2px 0 #000;background:#06104f;border:3px solid var(--edge);border-radius:0;cursor:pointer}
-.tabs button[aria-selected="true"]{background:var(--gold);color:#101060;text-shadow:none;border-color:#fff}
-.big{font-size:3rem;line-height:1;color:var(--gold)}
-.big small{font-size:1.4rem;color:var(--cyan)}
+body{margin:0;min-height:100vh;color:var(--ink);font:500 1.1rem/1.35 "Rajdhani","Segoe UI",system-ui,sans-serif;letter-spacing:.02em;
+background:radial-gradient(ellipse at 75% 15%,var(--bg2) 0%,var(--bg1) 45%,var(--bg0) 100%) fixed;overflow-x:hidden}
+body::before,body::after{content:"";position:fixed;border-radius:50%;pointer-events:none;
+-webkit-mask:radial-gradient(closest-side,transparent 86%,#000 87%);mask:radial-gradient(closest-side,transparent 86%,#000 87%)}
+body::before{right:-24vmin;top:-24vmin;width:92vmin;height:92vmin;background:repeating-conic-gradient(rgba(150,200,240,.17) 0 6deg,rgba(150,200,240,.04) 6deg 12deg);animation:spin 160s linear infinite}
+body::after{right:-9vmin;top:-9vmin;width:62vmin;height:62vmin;background:repeating-conic-gradient(rgba(150,200,240,.13) 0 2deg,transparent 2deg 5deg);-webkit-mask:radial-gradient(closest-side,transparent 91%,#000 92%);mask:radial-gradient(closest-side,transparent 91%,#000 92%);animation:spin 90s linear infinite reverse}
+@keyframes spin{to{transform:rotate(360deg)}}
+.shell{position:relative;max-width:980px;margin:0 auto;padding:20px 16px 40px}
+.top{display:flex;align-items:center;gap:14px;padding-bottom:12px;border-bottom:1px solid var(--line);margin-bottom:18px}
+.mark{width:44px;height:44px;border:3px solid var(--hi);border-radius:50%;box-shadow:0 0 14px rgba(120,200,255,.5),inset 0 0 10px rgba(120,200,255,.35);flex:none}
+h1{margin:0;font-size:clamp(1.9rem,7vw,2.8rem);line-height:1;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--hi);text-shadow:0 0 18px rgba(120,200,255,.45)}
+.sub{margin:2px 0 0;color:var(--mute);letter-spacing:.35em;text-transform:uppercase;font-size:.9rem}
+.layout{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:760px){.layout{grid-template-columns:250px 1fr;gap:24px}}
+.menu{display:flex;flex-direction:column;gap:18px}
+.tl,.act{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+@media (min-width:760px){.tl,.act{grid-template-columns:1fr}}
+.menu button{font:inherit;font-size:1.3rem;font-weight:700;text-align:left;text-transform:uppercase;letter-spacing:.12em;line-height:1.1;
+color:#b8d4ea;background:var(--panel);border:0;border-left:4px solid transparent;padding:12px 16px;cursor:pointer;
+clip-path:polygon(0 0,100% 0,calc(100% - 16px) 100%,0 100%);transition:transform .15s ease,color .15s,border-color .15s}
+.menu .act button{font-size:.95rem;letter-spacing:.08em;padding:9px 16px}
+.menu .sm{display:block;margin-top:3px;font-size:.78rem;font-weight:500;letter-spacing:.2em;color:var(--mute)}
+.menu button:hover{color:#fff;border-left-color:var(--acc);transform:translateX(6px)}
+.menu button[aria-selected="true"]{color:#06182a;border-left-color:#fff;background:linear-gradient(90deg,#d6efff,#7fc0ec)}
+.menu button[aria-selected="true"] .sm{color:#28506f}
+.menu button[aria-pressed="true"]{color:#06182a;border-left-color:#fff;background:linear-gradient(90deg,#d6efff,#7fc0ec)}
+@media (prefers-reduced-motion:reduce){body::before,body::after{animation:none}.menu button{transition:none}.menu button:hover{transform:none}}
+.menu button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.panel{background:var(--panel);border:1px solid var(--line);margin-bottom:16px;backdrop-filter:blur(6px);
+clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,20px 100%,0 calc(100% - 20px))}
+.panel h2{margin:0;padding:8px 18px;font-size:1rem;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--hi);
+background:linear-gradient(90deg,rgba(108,196,255,.28),rgba(108,196,255,0));border-bottom:1px solid var(--line)}
+.body{padding:16px 18px 18px}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:block;font-size:.85rem;color:var(--mute);letter-spacing:.14em;text-transform:uppercase;margin-bottom:2px}
+input,select{width:100%;padding:8px 10px;font:inherit;font-size:1.2rem;color:#fff;background:rgba(3,10,20,.65);border:0;border-bottom:2px solid var(--acc);border-radius:0}
+select option{background:#0a1828}
+.big{font-size:clamp(2.6rem,10vw,3.8rem);font-weight:700;line-height:1;color:var(--hi);text-shadow:0 0 20px rgba(120,200,255,.5)}
+.big small{font-size:1.1rem;font-weight:500;color:var(--mute);letter-spacing:.12em;text-shadow:none}
 .big.ok{color:var(--ok)}.big.warn{color:var(--warn)}
-.row{display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-top:2px dotted #5f74e0}
-.row span:first-child{color:var(--cyan)}.row b{text-align:right;font-weight:400;color:#fff}
-.note{font-size:1.1rem;color:#cfd8ff;margin-top:6px}
+.row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid rgba(150,200,240,.18)}
+.row span:first-child{color:var(--mute)}.row b{font-weight:600;text-align:right}
+.note{font-size:.95rem;color:var(--mute);margin-top:6px}
 .note.warn,.warn{color:var(--warn)}.ok{color:var(--ok)}
-.foot{border-top:4px solid var(--gold);padding-top:8px;margin-top:6px}
-.right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
-#mus{font:inherit;font-size:1.15rem;color:#fff;text-shadow:1px 1px 0 #000;background:#06104f;border:2px solid var(--edge);padding:2px 8px;cursor:pointer;border-radius:0}
-#mus[aria-pressed="true"]{background:var(--gold);color:#101060;text-shadow:none;border-color:#fff}
-.wxhead{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:8px}
-.wxhead h2{margin:0}.wxhead select{width:auto;font-size:1.2rem;padding:2px 6px}
-.wxmain{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
-.wxmain .t{font-size:3.4rem;color:var(--gold);line-height:1}.wxmain .c{font-size:1.6rem}
-#map{position:relative;height:220px;overflow:hidden;background:#030a3a;border:2px solid var(--edge);margin-top:10px}
-#mg{position:absolute;width:1280px;height:768px}
-#mg img{position:absolute;width:256px;height:256px;max-width:none}
-#mg .rf{position:absolute;inset:0;opacity:.75;display:none}
-#mg .rf.on{display:block}
-.pin{position:absolute;left:50%;top:50%;width:12px;height:12px;margin:-6px 0 0 -6px;border:3px solid var(--gold);border-radius:50%;box-shadow:0 0 0 2px #000}
-#mlabel{position:absolute;left:6px;bottom:4px;font-size:1.1rem;background:#000;padding:0 6px;color:var(--cyan)}
+.foot{border-top:1px solid var(--line);padding-top:10px;margin-top:6px}
+#bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+#bg>*{position:absolute}
+#bg canvas{inset:0;width:100%;height:100%}
+#s1{animation:tw 5s ease-in-out infinite}#s2{animation:tw 7s ease-in-out -3s infinite}
+@keyframes tw{0%,100%{opacity:1}50%{opacity:.45}}
+.neb{inset:0;background:radial-gradient(60% 45% at 78% 12%,rgba(120,190,255,.20),transparent 70%),radial-gradient(50% 40% at 15% 30%,rgba(110,90,200,.16),transparent 70%),radial-gradient(70% 40% at 40% 85%,rgba(40,140,170,.14),transparent 70%)}
+.planet{left:50%;bottom:-128vmin;width:160vmin;height:160vmin;margin-left:-80vmin;border-radius:50%;
+background:radial-gradient(circle at 50% 0%,rgba(120,190,255,.5),rgba(30,70,120,.75) 16%,#050b14 52%);
+box-shadow:0 -1.5vmin 6vmin rgba(120,190,255,.35),inset 0 2.5vmin 5vmin rgba(160,220,255,.35)}
+#bgimg{inset:0;background-position:center;background-size:cover;display:none}
+#bgscrim{inset:0;background:linear-gradient(180deg,rgba(4,10,20,.5),rgba(4,10,20,.78));display:none}
+#bg.img #bgimg,#bg.img #bgscrim{display:block}
+#bg.img .sp{display:none}
+@media (prefers-reduced-motion:reduce){#s1,#s2{animation:none}}
+#ytl{inset:0;opacity:0;transition:opacity .6s;overflow:hidden}
+#ytl iframe{position:absolute;left:50%;top:50%;width:max(100vw,177.78vh);height:max(56.25vw,100vh);transform:translate(-50%,-50%);border:0}
+#bg.vid #ytl{opacity:1}
+#bg.vid #bgscrim{display:block}
+#bg.vid .sp{display:none}
+.media{display:flex;flex-direction:column;gap:6px}
+.media input{font-size:1rem;padding:7px 9px}
+.menu .note{font-size:.85rem;margin:0}
 [hidden]{display:none!important}
-</style></head><body><main>
-<div class="hdr"><h1>Vancomycin Dosing</h1><div class="right"><button id="mus" aria-pressed="false">&#9834; Music: Off</button><div class="clock" id="clk"></div></div></div>
-<div class="ticker" aria-hidden="true"><span>Target AUC24 400-600 mg&middot;h/L ... Cockcroft-Gault CrCl ... Matzke clearance ... Sawchuk-Zaske level adjustment ... Educational tool: verify with a pharmacist and local protocol ...</span></div>
-<div class="card" id="wx"><div class="wxhead"><h2>Current Conditions</h2>
-<select id="city" aria-label="City"><option>Birmingham</option><option>Atlanta</option><option>New York</option><option>Chicago</option><option>Denver</option><option>Los Angeles</option><option>Miami</option><option>Seattle</option></select></div>
-<div id="wxout"><p class="note">Loading conditions...</p></div>
-<div id="map" aria-label="Radar map"><div id="mg"></div><div class="pin"></div><div id="mlabel">Radar</div></div>
-<p class="note">Weather: Open-Meteo. Radar: RainViewer. Map: &copy; OpenStreetMap contributors, &copy; CARTO.</p></div>
-<div class="tabs" role="tablist">
-<button role="tab" id="t1" aria-selected="true">Initial dose</button>
-<button role="tab" id="t2" aria-selected="false">Adjust from levels</button></div>
+</style></head><body><div id="bg" aria-hidden="true"><canvas id="s1" class="sp"></canvas><canvas id="s2" class="sp"></canvas><div class="neb sp"></div><div class="planet sp"></div><div id="bgimg"></div><div id="ytl"></div><div id="bgscrim"></div></div>
+<input type="file" id="bgfile" accept="image/*" hidden>
+<div class="shell">
+<header class="top"><div class="mark" aria-hidden="true"></div><div><h1>Vancomycin</h1><p class="sub">Dosing calculator</p></div></header>
 
+<div class="layout">
+<nav class="menu" aria-label="Calculator menu">
+<div class="tl" role="tablist">
+<button role="tab" id="t1" aria-selected="true">Initial dose<span class="sm">Population estimate</span></button>
+<button role="tab" id="t2" aria-selected="false">Adjust from levels<span class="sm">Two-level method</span></button></div>
+<div class="act">
+<button id="rst">Reset values</button>
+<button id="snd" aria-pressed="false">Sound: Off</button>
+<button id="bgb" aria-pressed="false">Background: Space</button>
+<button id="bgpick">Choose image</button></div>
+<div class="media">
+<label for="yturl">YouTube link</label>
+<input id="yturl" type="url" inputmode="url" spellcheck="false" autocomplete="off" value="https://youtu.be/-mov9EUohsk">
+<div class="act">
+<button id="ytbg" aria-pressed="false">Video: Off</button>
+<button id="ytmus" aria-pressed="false">Music: Off</button></div>
+<p class="note" id="ytnote"></p></div></nav>
+
+<div>
 <section id="p1">
-<div class="card"><h2>Patient</h2><div class="g">
+<div class="panel"><h2>Patient</h2><div class="body"><div class="g">
 <div><label for="sex">Sex</label><select id="sex"><option value="m">Male</option><option value="f">Female</option></select></div>
 <div><label for="age">Age (years)</label><input id="age" type="number" inputmode="decimal" value="55"></div>
 <div><label for="ht">Height (in)</label><input id="ht" type="number" inputmode="decimal" value="70"></div>
 <div><label for="wt">Weight (kg)</label><input id="wt" type="number" inputmode="decimal" value="80"></div>
 <div><label for="scr">Serum creatinine (mg/dL)</label><input id="scr" type="number" inputmode="decimal" step="0.1" value="1.0"></div>
 <div><label for="wsel">Weight for CrCl</label><select id="wsel"><option value="auto">Auto (IBW / Adjusted)</option><option value="tbw">Actual</option><option value="ibw">Ideal</option><option value="adj">Adjusted</option></select></div>
-</div></div>
-<div class="card"><h2>Regimen</h2><div class="g">
+</div></div></div>
+<div class="panel"><h2>Regimen</h2><div class="body"><div class="g">
 <div><label for="auc">Target AUC24 (mg·h/L)</label><input id="auc" type="number" value="500"></div>
 <div><label for="tau">Interval (h)</label><select id="tau"><option value="0">Auto</option><option>8</option><option>12</option><option>18</option><option>24</option><option>36</option><option>48</option></select></div>
 <div><label for="ld">Loading dose (mg/kg)</label><input id="ld" type="number" value="25"></div>
 <div><label for="rnd">Round dose to (mg)</label><select id="rnd"><option>250</option><option>500</option><option>50</option></select></div>
-</div></div>
-<div class="card" id="out1"></div>
+</div></div></div>
+<div class="panel"><h2>Result</h2><div class="body" id="out1"></div></div>
 </section>
 
 <section id="p2" hidden>
-<div class="card"><h2>Current regimen</h2><div class="g">
+<div class="panel"><h2>Current regimen</h2><div class="body"><div class="g">
 <div><label for="d2">Dose (mg)</label><input id="d2" type="number" value="1250"></div>
 <div><label for="i2">Interval (h)</label><input id="i2" type="number" value="12"></div>
 <div><label for="inf2">Infusion time (h)</label><input id="inf2" type="number" step="0.25" value="1.5"></div>
 <div><label for="auc2">Target AUC24</label><input id="auc2" type="number" value="500"></div>
-</div></div>
-<div class="card"><h2>Steady-state levels</h2>
+</div></div></div>
+<div class="panel"><h2>Steady-state levels</h2><div class="body">
 <p class="note" style="margin:0 0 10px">Time is hours after the start of the infusion.</p><div class="g">
 <div><label for="c1">Level 1 (mg/L)</label><input id="c1" type="number" step="0.1" value="30"></div>
 <div><label for="t1h">Level 1 time (h)</label><input id="t1h" type="number" step="0.25" value="3"></div>
 <div><label for="c2">Level 2 (mg/L)</label><input id="c2" type="number" step="0.1" value="12"></div>
 <div><label for="t2h">Level 2 time (h)</label><input id="t2h" type="number" step="0.25" value="11.5"></div>
-</div></div>
-<div class="card" id="out2"></div>
+</div></div></div>
+<div class="panel"><h2>Result</h2><div class="body" id="out2"></div></div>
 </section>
+</div></div>
 
-<p class="note foot">Methods: Cockcroft-Gault CrCl; vancomycin CL (mL/min) = 0.689 × CrCl + 3.66 (Matzke 1984); Vd = 0.7 L/kg actual weight; ke = CL / Vd; AUC24 = daily dose / CL; level-based adjustment by Sawchuk-Zaske. Reference targets: AUC24 400–600 mg·h/L (ASHP/IDSA 2020). Not affiliated with ClinCalc.</p>
+<p class="note foot">Educational tool; verify with a pharmacist and local protocol. Methods: Cockcroft-Gault CrCl; vancomycin CL (mL/min) = 0.689 × CrCl + 3.66 (Matzke 1984); Vd = 0.7 L/kg actual weight; ke = CL / Vd; AUC24 = daily dose / CL; level-based adjustment by Sawchuk-Zaske. Reference AUC24 target 400–600 mg·h/L (ASHP/IDSA 2020).</p>
 
 <script>
 const $=id=>document.getElementById(id),n=id=>parseFloat($(id).value);
@@ -153,94 +192,84 @@ document.querySelectorAll("#p2 input").forEach(e=>e.addEventListener("input",cal
 [["t1","p1","t2","p2"],["t2","p2","t1","p1"]].forEach(([a,pa,b,pb])=>$(a).onclick=()=>{
  $(a).setAttribute("aria-selected","true");$(b).setAttribute("aria-selected","false");$(pa).hidden=false;$(pb).hidden=true});
 calc1();calc2();
-const tick=()=>{$("clk").textContent=new Date().toLocaleTimeString([], {hour:"numeric",minute:"2-digit"})};tick();setInterval(tick,30000);
 
-const Music=(()=>{
- let ctx,master,bus,timer,next,step=0,noise,on=false;
- const E=60/92/2, mf=m=>440*Math.pow(2,(m-69)/12);
- const chords=[{b:48,p:[64,67,71,74]},{b:45,p:[60,64,67,71]},{b:50,p:[65,69,72,76]},{b:43,p:[65,71,74,76]}];
- const sc=[72,74,76,79,81,84];
- const mel=[4,-1,5,-1,4,2,-1,-1, 3,-1,2,-1,0,-1,2,-1, 1,-1,3,5,4,-1,-1,-1, 2,-1,3,-1,4,-1,-1,-1];
- function tone(type,f,t,dur,vol,dest,a=.01,vib=false){
-  const o=ctx.createOscillator(),g=ctx.createGain();o.type=type;o.frequency.value=f;
-  g.gain.setValueAtTime(.0001,t);g.gain.linearRampToValueAtTime(vol,t+a);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
-  o.connect(g);g.connect(dest);o.start(t);o.stop(t+dur+.05);
-  if(vib){const l=ctx.createOscillator(),lg=ctx.createGain();l.frequency.value=5.5;lg.gain.value=14;l.connect(lg);lg.connect(o.detune);l.start(t);l.stop(t+dur+.05)}
+const Sfx=(()=>{let ctx,on=false;
+ function blip(f1,f2,dur,vol,type){if(!on||!ctx)return;const t=ctx.currentTime,o=ctx.createOscillator(),g=ctx.createGain();
+  o.type=type;o.frequency.setValueAtTime(f1,t);o.frequency.exponentialRampToValueAtTime(f2,t+dur);
+  g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol,t+.01);g.gain.exponentialRampToValueAtTime(.0001,t+dur);
+  o.connect(g);g.connect(ctx.destination);o.start(t);o.stop(t+dur+.02)}
+ return{
+  toggle(){try{if(!on){ctx=ctx||new (window.AudioContext||window.webkitAudioContext)();if(ctx.state==="suspended")ctx.resume();on=true}else on=false}catch(e){on=false}return on},
+  hover(){blip(900,1300,.07,.05,"triangle")},
+  select(){blip(500,900,.12,.09,"sine");setTimeout(()=>blip(900,1400,.14,.07,"sine"),70)},
+  back(){blip(700,350,.13,.07,"triangle")}}})();
+document.querySelectorAll(".menu button").forEach(b=>{
+ b.addEventListener("pointerenter",e=>{if(e.pointerType==="mouse")Sfx.hover()});
+ b.addEventListener("focus",()=>{if(b.matches(":focus-visible"))Sfx.hover()})});
+["t1","t2"].forEach(id=>$(id).addEventListener("click",()=>Sfx.select()));
+$("snd").onclick=()=>{const on=Sfx.toggle();$("snd").setAttribute("aria-pressed",on);$("snd").textContent="Sound: "+(on?"On":"Off");if(on)Sfx.select()};
+$("rst").onclick=()=>{Sfx.back();
+ document.querySelectorAll("#p1 input,#p2 input").forEach(e=>e.value=e.defaultValue);
+ document.querySelectorAll("#p1 select").forEach(e=>{const i=[...e.options].findIndex(o=>o.defaultSelected);e.selectedIndex=i<0?0:i});
+ calc1();calc2()};
+
+const CUSTOM_BG=""; // optional: path to your own image next to this file, e.g. "background.jpg"
+(function(){
+ const bg=$("bg"),img=$("bgimg"),btn=$("bgb"),file=$("bgfile");
+ let src="",url=null;
+ const rng=seed=>()=>(seed=(seed*1664525+1013904223)>>>0)/4294967296;
+ function stars(c,seed,count){
+  const w=innerWidth,h=innerHeight,d=Math.min(2,devicePixelRatio||1),x=c.getContext("2d"),r=rng(seed);
+  c.width=w*d;c.height=h*d;x.scale(d,d);
+  for(let i=0;i<count;i++){const a=.25+r()*.75,z=r()<.08?1.6:r()<.3?1.1:.7;
+   x.fillStyle=r()<.2?`rgba(160,210,255,${a})`:`rgba(255,255,255,${a})`;
+   x.beginPath();x.arc(r()*w,r()*h,z,0,6.2832);x.fill()}
  }
- function hit(t,type,freq,vol,len){
-  const s=ctx.createBufferSource(),f=ctx.createBiquadFilter(),g=ctx.createGain();
-  s.buffer=noise;f.type=type;f.frequency.value=freq;
-  g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(.0001,t+len);
-  s.connect(f);f.connect(g);g.connect(bus);s.start(t);s.stop(t+len+.02);
- }
- function kick(t){const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.setValueAtTime(120,t);o.frequency.exponentialRampToValueAtTime(45,t+.12);
-  g.gain.setValueAtTime(.18,t);g.gain.exponentialRampToValueAtTime(.0001,t+.2);o.connect(g);g.connect(bus);o.start(t);o.stop(t+.25)}
- function sched(n,t0){
-  const t=t0+(n%2?E*.16:0), bar=Math.floor(n/8)%4, s=n%8, c=chords[bar];
-  hit(t,"highpass",7000,s%2?.02:.035,.05);
-  if(s==2||s==6)hit(t,"bandpass",1800,.05,.12);
-  if(s==0||s==5)kick(t);
-  if(s==0){tone("sine",mf(c.b),t,E*3,.22,bus,.01);c.p.forEach(m=>tone("triangle",mf(m-12),t,E*8,.012,bus,.4))}
-  if(s==5)tone("sine",mf(c.b+7),t,E*2,.16,bus,.01);
-  if(s==0||s==3)c.p.forEach(m=>{tone("triangle",mf(m),t,1.4,.03,bus);tone("sine",mf(m+12),t,.5,.008,bus)});
-  const i=mel[n%32];
-  if(i>=0)tone("sawtooth",mf(sc[i]),t,E*2.6,.05,lead,.05,true);
- }
- let lead;
- function start(){
-  ctx=new (window.AudioContext||window.webkitAudioContext)();
-  master=ctx.createGain();master.gain.setValueAtTime(.0001,ctx.currentTime);master.gain.linearRampToValueAtTime(.7,ctx.currentTime+.5);master.connect(ctx.destination);
-  bus=ctx.createGain();bus.connect(master);
-  const d=ctx.createDelay(1),fb=ctx.createGain(),wet=ctx.createGain();d.delayTime.value=.33;fb.gain.value=.3;wet.gain.value=.22;
-  bus.connect(d);d.connect(fb);fb.connect(d);d.connect(wet);wet.connect(master);
-  lead=ctx.createBiquadFilter();lead.type="lowpass";lead.frequency.value=2200;lead.connect(bus);
-  noise=ctx.createBuffer(1,ctx.sampleRate,ctx.sampleRate);const nd=noise.getChannelData(0);for(let i=0;i<nd.length;i++)nd[i]=Math.random()*2-1;
-  step=0;next=ctx.currentTime+.1;
-  timer=setInterval(()=>{while(next<ctx.currentTime+.5){sched(step++,next);next+=E}},100);
-  on=true;
- }
- function stop(){
-  clearInterval(timer);const c=ctx,m=master;
-  m.gain.cancelScheduledValues(c.currentTime);m.gain.setValueAtTime(m.gain.value,c.currentTime);m.gain.linearRampToValueAtTime(.0001,c.currentTime+.3);
-  setTimeout(()=>c.close(),400);on=false;
- }
- return{toggle(){try{on?stop():start()}catch(e){console.error(e);on=false}return on},get on(){return on}};
+ let q;const draw=()=>{stars($("s1"),11,170);stars($("s2"),97,130)};
+ draw();addEventListener("resize",()=>{cancelAnimationFrame(q);q=requestAnimationFrame(draw)});
+ function show(on){bg.classList.toggle("img",on);btn.setAttribute("aria-pressed",on);btn.textContent="Background: "+(on?"Image":"Space")}
+ function use(u){src=u;img.style.backgroundImage='url("'+u.replace(/"/g,"%22")+'")'}
+ btn.addEventListener("click",()=>{Sfx.select();
+  if(bg.classList.contains("img"))show(false);else if(src)show(true);else file.click()});
+ $("bgpick").addEventListener("click",()=>{Sfx.select();file.click()});
+ file.addEventListener("change",()=>{const f=file.files&&file.files[0];
+  if(f&&f.type.indexOf("image/")==0){if(url)URL.revokeObjectURL(url);url=URL.createObjectURL(f);use(url);show(true)}
+  file.value=""});
+ if(CUSTOM_BG){const t=new Image();t.onload=()=>{use(CUSTOM_BG);show(true)};t.src=CUSTOM_BG}
 })();
-$("mus").onclick=()=>{const b=$("mus"),on=Music.toggle();b.setAttribute("aria-pressed",on);b.innerHTML=on?"&#9834; Music: On":"&#9834; Music: Off"};
 
-const CITIES={"Atlanta":[33.749,-84.388],"Birmingham":[33.52,-86.802],"New York":[40.713,-74.006],"Chicago":[41.878,-87.63],"Denver":[39.739,-104.99],"Los Angeles":[34.052,-118.244],"Miami":[25.762,-80.192],"Seattle":[47.606,-122.332]};
-const WX={0:"Clear",1:"Mostly clear",2:"Partly cloudy",3:"Cloudy",45:"Fog",48:"Fog",51:"Light drizzle",53:"Drizzle",55:"Heavy drizzle",61:"Light rain",63:"Rain",65:"Heavy rain",71:"Light snow",73:"Snow",75:"Heavy snow",80:"Showers",81:"Showers",82:"Heavy showers",95:"Thunderstorm",96:"Thunderstorm, hail",99:"Thunderstorm, hail"};
-const wxErr="<p class='note warn'>No data connection. Live weather and radar load when this page is opened as a saved file or on your own host while online.</p>";
-let radarTimer,pos={};
-function place(){const m=$("map");$("mg").style.left=(m.clientWidth/2-pos.px)+"px";$("mg").style.top=(m.clientHeight/2-pos.py)+"px"}
-async function getJSON(u){const ac=new AbortController(),to=setTimeout(()=>ac.abort(),8000);try{const r=await fetch(u,{signal:ac.signal});if(!r.ok)throw 0;return await r.json()}finally{clearTimeout(to)}}
-async function loadWx(){
- const [lat,lon]=CITIES[$("city").value];
- try{
-  const j=await getJSON(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,pressure_msl,wind_speed_10m,wind_direction_10m,weather_code&temperature_unit=fahrenheit&wind_speed_unit=mph`);
-  const c=j.current,dirs=["N","NE","E","SE","S","SW","W","NW"];
-  $("wxout").innerHTML=`<div class="wxmain"><span class="t">${Math.round(c.temperature_2m)}&deg;F</span><span class="c">${WX[c.weather_code]||"Conditions"}</span></div>
-  ${row("Feels like",Math.round(c.apparent_temperature)+"&deg;F")}${row("Humidity",c.relative_humidity_2m+"%")}
-  ${row("Wind",dirs[Math.round(c.wind_direction_10m/45)%8]+" "+Math.round(c.wind_speed_10m)+" mph")}${row("Pressure",(c.pressure_msl*0.02953).toFixed(2)+" in")}`;
- }catch(e){$("wxout").innerHTML=wxErr}
-}
-async function loadRadar(){
- clearInterval(radarTimer);const mg=$("mg");mg.innerHTML="";
- const [lat,lon]=CITIES[$("city").value],Z=6,N=2**Z,r=lat*Math.PI/180;
- const xf=(lon+180)/360*N,yf=(1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2*N,tx=Math.floor(xf),ty=Math.floor(yf);
- pos={px:(xf-(tx-2))*256,py:(yf-(ty-1))*256};place();
- $("mlabel").textContent=$("city").value;
- const layer=(url,cls)=>{const d=document.createElement("div");d.className=cls;for(let i=0;i<5;i++)for(let k=0;k<3;k++){const im=new Image();im.alt="";im.style.left=i*256+"px";im.style.top=k*256+"px";im.src=url(tx-2+i,ty-1+k);d.appendChild(im)}mg.appendChild(d);return d};
- layer((x,y)=>`https://a.basemaps.cartocdn.com/dark_all/${Z}/${x}/${y}.png`,"rf on").style.opacity=1;
- try{
-  const j=await getJSON("https://api.rainviewer.com/public/weather-maps.json");
-  const fr=j.radar.past.slice(-4),L=fr.map(q=>layer((x,y)=>`${j.host}${q.path}/256/${Z}/${x}/${y}/2/1_1.png`,"rf"));
-  let n=L.length-1;const show=()=>{L.forEach((d,i)=>d.classList.toggle("on",i==n));$("mlabel").textContent=$("city").value+" radar "+new Date(fr[n].time*1000).toLocaleTimeString([],{hour:"numeric",minute:"2-digit"})};
-  show();
-  if(!matchMedia("(prefers-reduced-motion:reduce)").matches)radarTimer=setInterval(()=>{n=(n+1)%L.length;show()},700);
- }catch(e){}
-}
-function loadAll(){loadWx();loadRadar()}
-$("city").onchange=loadAll;addEventListener("resize",()=>pos.px&&place());
-loadAll();setInterval(loadWx,600000);
-</script></main></body></html>
+(function(){
+ const bg=$("bg"),box=$("ytl"),inp=$("yturl"),vb=$("ytbg"),mb=$("ytmus"),note=$("ytnote");
+ const DEF="Needs internet. Works when hosted online; some videos block embedding.";
+ let fr=null,id=null,vid=false,snd=false;
+ note.textContent=DEF;
+ const parse=v=>{v=(v||"").trim();const m=v.match(/(?:youtu\.be\/|[?&]v=|\/embed\/|\/shorts\/|\/live\/)([\w-]{11})/);return m?m[1]:(/^[\w-]{11}$/.test(v)?v:null)};
+ const send=(f,a)=>{try{fr&&fr.contentWindow.postMessage(JSON.stringify({event:"command",func:f,args:a===undefined?"":a}),"*")}catch(e){}};
+ function apply(){send(snd?"unMute":"mute");if(snd)send("setVolume",[70]);send("playVideo")}
+ function build(){
+  const nid=parse(inp.value);
+  if(!nid){note.textContent="That doesn't look like a YouTube link.";return false}
+  note.textContent=DEF;
+  if(nid===id&&fr)return true;
+  id=nid;if(fr)fr.remove();
+  fr=document.createElement("iframe");
+  fr.title="YouTube player";fr.allow="autoplay; encrypted-media";fr.referrerPolicy="strict-origin-when-cross-origin";
+  let q="autoplay=1&mute=1&loop=1&playlist="+id+"&controls=0&modestbranding=1&playsinline=1&rel=0&enablejsapi=1";
+  if(/^https?:/.test(location.protocol))q+="&origin="+encodeURIComponent(location.origin);
+  fr.addEventListener("load",()=>setTimeout(apply,600));
+  fr.src="https://www.youtube-nocookie.com/embed/"+id+"?"+q;
+  box.appendChild(fr);return true;
+ }
+ function sync(){
+  bg.classList.toggle("vid",vid);
+  vb.setAttribute("aria-pressed",vid);vb.textContent="Video: "+(vid?"On":"Off");
+  mb.setAttribute("aria-pressed",snd);mb.textContent="Music: "+(snd?"On":"Off");
+  if(vid||snd)apply();else send("pauseVideo");
+ }
+ vb.addEventListener("click",()=>{Sfx.select();const on=!vid;if(on&&!build())return;vid=on;sync()});
+ mb.addEventListener("click",()=>{Sfx.select();const on=!snd;if(on&&!build())return;snd=on;sync()});
+ inp.addEventListener("change",()=>{if(vid||snd)build();else note.textContent=parse(inp.value)?DEF:"That doesn't look like a YouTube link."});
+})();
+</script></div></body></html>
+
+</body></html>
